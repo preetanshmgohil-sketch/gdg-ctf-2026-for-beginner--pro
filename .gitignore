@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Event state: shared secrets and the live SQLite database
+instance/
+*.db
+*.db-wal
+*.db-shm
+
+# Local environment overrides
+.env
+.env.*
+
+# Editors and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="card error-card">
+  <p class="eyebrow">ERROR {{ code }}</p>
+  <h1>{{ message }}</h1>
+  <p class="lede">If you followed a launch link, it may have expired. Sign in and launch the challenge again.</p>
+  <a class="button" href="{{ url_for('index') }}">Return to the board</a>
+</section>
+{% endblock %}

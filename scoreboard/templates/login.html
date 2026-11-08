@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Sign in · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-copy">
+    <p class="eyebrow">WELCOME BACK</p>
+    <h1>Back to the board.</h1>
+    <p class="lede">Your team's solves, hints, and running score are waiting.</p>
+    <div class="quote">
+      <p>“The flag is unique to your team. The launch link is not a souvenir — don't post it.”</p>
+      <span>— event rules, probably</span>
+    </div>
+  </div>
+
+  <form class="card auth-card" method="post" action="{{ url_for('login') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+    <h2>Team sign in</h2>
+
+    <label for="name">Team name</label>
+    <input id="name" name="name" type="text" required autocomplete="username"
+           placeholder="Temporal Turtles">
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required
+           autocomplete="current-password" placeholder="Your team password">
+
+    <button class="button full" type="submit">Sign in</button>
+    <p class="small">No team yet? <a href="{{ url_for('register') }}">Register one</a>.</p>
+  </form>
+</section>
+{% endblock %}

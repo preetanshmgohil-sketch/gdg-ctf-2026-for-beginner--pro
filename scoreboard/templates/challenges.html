@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Challenges · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">CHALLENGE BOARD</p>
+    <h1>Pick your next bug.</h1>
+    <p class="lede">Your score after hint costs is <strong>{{ score }}</strong>. Every launch link carries a signed team token.</p>
+  </div>
+  <a class="button ghost" href="{{ url_for('scoreboard') }}">View scoreboard</a>
+</section>
+
+<div class="challenge-grid">
+  {% for challenge in challenges %}
+  <article class="challenge-card">
+    <div class="challenge-meta">
+      <span class="pill">{{ challenge.category }}</span>
+      <span class="pill difficulty {{ challenge.difficulty|lower }}">{{ challenge.difficulty }}</span>
+      <span class="points">{{ challenge.points }} pts</span>
+    </div>
+    <h3>{{ challenge.title }}</h3>
+    <p>{{ challenge.summary }}</p>
+    <div class="hint-line">
+      {% set ns = namespace(count=0) %}
+      {% for hint_slug, level in hints %}{% if hint_slug == challenge.slug %}{% set ns.count = ns.count + 1 %}{% endif %}{% endfor %}
+      <span class="muted">Hints unlocked: {{ ns.count }} / 3</span>
+      {% if challenge.slug in solved %}<span class="solved-badge">Solved</span>{% endif %}
+    </div>
+    <div class="card-footer">
+      <span class="muted">{{ challenge.points }} base points</span>
+      <a class="text-link" href="{{ url_for('challenge_detail', slug=challenge.slug) }}">
+        {{ 'Review' if challenge.slug in solved else 'Open challenge' }} →
+      </a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

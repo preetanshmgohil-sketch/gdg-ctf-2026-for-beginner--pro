@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Organizer audit · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">ORGANIZER ONLY</p>
+    <h1>Event audit</h1>
+    <p class="lede">Registrations, submissions, and cross-team flag attempts. Do not project this page.</p>
+  </div>
+  <a class="button ghost" href="{{ url_for('admin_audit_csv') }}">Download audit CSV</a>
+</section>
+
+<div class="stat-grid">
+  <div class="stat"><span>Teams</span><strong>{{ teams|length }}</strong><small>registered</small></div>
+  <div class="stat"><span>Submissions</span><strong>{{ submissions|length }}</strong><small>latest 200 shown</small></div>
+  <div class="stat"><span>Share attempts</span><strong class="{{ 'status-bad' if share_attempts else 'status-good' }}">{{ share_attempts }}</strong><small>all time</small></div>
+  <div class="stat"><span>Audit rows</span><strong>{{ audit_rows|length }}</strong><small>latest 200 shown</small></div>
+</div>
+
+{% if share_attempts %}
+<div class="notice danger">
+  <strong>Cross-team flag attempts detected.</strong>
+  Review the submissions table and talk to the teams involved. A copied flag never
+  scores, but repeated attempts may justify a warning or a ban.
+</div>
+{% endif %}
+
+<section class="card admin-card">
+  <div class="card-heading">
+    <h2>Teams</h2>
+    <span class="muted">Scores include hint costs</span>
+  </div>
+  <table class="mini-table wide-table">
+    <thead><tr><th>ID</th><th>Team</th><th>Created</th><th>IP</th><th>Solves</th><th class="right">Score</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for team in teams %}
+      <tr>
+        <td class="muted">{{ team.id }}</td>
+        <td><strong>{{ team.name }}</strong>{% if team.banned %} <span class="pill bad">banned</span>{% endif %}</td>
+        <td class="muted">{{ team.created_at[:19] }}</td>
+        <td class="muted">{{ team.created_ip }}</td>
+        <td class="muted">{{ team.solves|join(', ') if team.solves else '—' }}</td>
+        <td class="right score-cell">{{ team.score }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_ban', team_id=team.id) }}" class="inline-form">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <input type="hidden" name="action" value="{{ 'unban' if team.banned else 'ban' }}">
+            <button class="link-button {{ 'danger' if not team.banned else '' }}" type="submit">
+              {{ 'Unban' if team.banned else 'Ban' }}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card admin-card">
+  <div class="card-heading">
+    <h2>Recent submissions</h2>
+    <span class="muted">Flags are truncated</span>
+  </div>
+  <table class="mini-table wide-table">
+    <thead><tr><th>#</th><th>Team</th><th>Challenge</th><th>Flag</th><th>Result</th><th>IP</th><th>Time</th></tr></thead>
+    <tbody>
+      {% for sub in submissions %}
+      <tr class="{{ 'row-alert' if sub.kind == 'flag_share_attempt' else '' }}">
+        <td class="muted">{{ sub.id }}</td>
+        <td>{{ sub.team_name }}</td>
+        <td class="muted">{{ sub.challenge_id }}</td>
+        <td class="mono">{{ sub.provided[:28] }}{% if sub.provided|length > 28 %}…{% endif %}</td>
+        <td>
+          {% if sub.correct %}<span class="result ok">correct</span>
+          {% elif sub.kind == 'flag_share_attempt' %}<span class="result bad">flag share</span>
+          {% else %}<span class="result bad">wrong</span>{% endif %}
+        </td>
+        <td class="muted">{{ sub.ip }}</td>
+        <td class="muted">{{ sub.created_at[:19] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card admin-card">
+  <div class="card-heading">
+    <h2>Audit log</h2>
+    <span class="muted">Registrations, logins, share attempts</span>
+  </div>
+  <table class="mini-table wide-table">
+    <thead><tr><th>#</th><th>Kind</th><th>Team</th><th>Detail</th><th>IP</th><th>Time</th></tr></thead>
+    <tbody>
+      {% for row in audit_rows %}
+      <tr class="{{ 'row-alert' if row.kind == 'flag_share_attempt' else '' }}">
+        <td class="muted">{{ row.id }}</td>
+        <td><span class="pill">{{ row.kind }}</span></td>
+        <td>{{ row.team_name or '—' }}</td>
+        <td class="mono">{{ row.detail }}</td>
+        <td class="muted">{{ row.ip }}</td>
+        <td class="muted">{{ row.created_at[:19] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

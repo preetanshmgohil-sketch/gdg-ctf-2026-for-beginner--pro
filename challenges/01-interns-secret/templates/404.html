@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Not found · GDG Labs</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <p class="eyebrow">404</p>
+      <h1>That page is not in the archive.</h1>
+      <p class="muted">The link may be old, or the note may have been moved.</p>
+      <a class="button-link" href="{{ url_for('index') }}">Return to the portal</a>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Rules · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">EVENT RULES</p>
+    <h1>Play the challenge, not the platform.</h1>
+    <p class="lede">These rules exist so a laptop-hosted event stays fun, fair, and safe for everyone.</p>
+  </div>
+</section>
+
+<div class="rules-grid">
+  <article class="card">
+    <h2>Do</h2>
+    <ul class="rules-list">
+      <li>Work with your own team and your own launch links.</li>
+      <li>Use browser DevTools, curl, Burp, Ghidra, or any tool you like against the challenge services.</li>
+      <li>Read the hints. They are sequential and cost points, not dignity.</li>
+      <li>Report accidental access to another team's data to the organizer.</li>
+    </ul>
+  </article>
+  <article class="card">
+    <h2>Don't</h2>
+    <ul class="rules-list">
+      <li>Do not share flags, launch links, or forged signatures across teams.</li>
+      <li>Do not attack the scoreboard, the host machine, the Wi-Fi, or other teams.</li>
+      <li>Do not brute-force flags or flood the submission endpoint.</li>
+      <li>Do not use real credentials or real personal data anywhere.</li>
+    </ul>
+  </article>
+  <article class="card">
+    <h2>Scoring</h2>
+    <p>
+      The Intern's Secret is worth 100 points. Chronos Engine is worth 300.
+      Each challenge has three hints; unlocking one subtracts its cost from your
+      score. Your score never goes below zero.
+    </p>
+  </article>
+  <article class="card">
+    <h2>Anti-cheat</h2>
+    <p>
+      Flags are HMAC-derived per team and the platform records every submission.
+      A flag that belongs to another team is stored as a <code>flag_share_attempt</code>
+      and reviewed after the event. Chronos keys are also per team, so one team's
+      forged signature is invalid on another team's instance.
+    </p>
+  </article>
+  <article class="card wide">
+    <h2>Safety and scope</h2>
+    <p>
+      Every service here is a fictional training target. There are no real
+      companies, people, domains, or production systems involved. The platform
+      and challenge services are isolated to the event laptop. If you are playing
+      remotely, only connect to the URLs the organizer gives you.
+    </p>
+  </article>
+</div>
+{% endblock %}

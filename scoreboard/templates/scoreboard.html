@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Scoreboard · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">LIVE SCOREBOARD</p>
+    <h1>Who is bending time?</h1>
+    <p class="lede">Scores are challenge points minus unlocked hint costs. Ties break by earliest first solve.</p>
+  </div>
+  <a class="button ghost" href="{{ url_for('challenges') }}">Back to challenges</a>
+</section>
+
+<div class="card scoreboard-card">
+  {% if rows %}
+  <table class="scoreboard">
+    <thead>
+      <tr><th>Rank</th><th>Team</th><th>Solved</th><th>Last solve</th><th class="right">Score</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr class="{{ 'me' if current_team and row.id == current_team.id else '' }}">
+        <td class="rank">#{{ row.rank }}</td>
+        <td><strong>{{ row.name }}</strong>{% if current_team and row.id == current_team.id %} <span class="you">you</span>{% endif %}</td>
+        <td>
+          {% for slug in row.solves %}
+            <span class="solve-dot" title="{{ challenge_by_slug[slug].title if slug in challenge_by_slug else slug }}"></span>
+          {% endfor %}
+          <span class="muted">{{ row.solves|length }}</span>
+        </td>
+        <td class="muted">{{ row.last_solve[11:19] if row.last_solve else '—' }}</td>
+        <td class="right score-cell">{{ row.score }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No teams yet. The board is waiting for its first time traveller.</p>
+  {% endif %}
+</div>
+{% endblock %}

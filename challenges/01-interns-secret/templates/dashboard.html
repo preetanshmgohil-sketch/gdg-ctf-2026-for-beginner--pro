@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="instance-id" content="{{ instance_id }}">
+  <title>My notes · GDG Labs</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell wide">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">GDG Labs · People Ops</p>
+        <h1>Hi, {{ user.name }}</h1>
+        <p class="muted">{{ user.role }} · employee #{{ user.id }}</p>
+        {% if team %}<p class="team-badge">Team: {{ team.name }}</p>{% endif %}
+      </div>
+      <form method="post" action="{{ url_for('logout') }}">
+        <button class="secondary" type="submit">Sign out</button>
+      </form>
+    </header>
+
+    <section class="notice">
+      <strong>Day one, sorted.</strong>
+      Your onboarding notes are private to your account. The legacy note viewer
+      opens individual notes by their numeric id.
+    </section>
+
+    <section aria-labelledby="notes-heading">
+      <div class="section-heading">
+        <h2 id="notes-heading">Your notes</h2>
+        <span class="pill">{{ notes|length }} items</span>
+      </div>
+
+      <div class="note-grid">
+        {% for note in notes %}
+        <article class="card note-card">
+          <p class="note-id">NOTE #{{ note.id }}</p>
+          <h3>{{ note.title }}</h3>
+          <p class="muted">{{ note.body[:88] }}{% if note.body|length > 88 %}…{% endif %}</p>
+          <a class="button-link" href="{{ url_for('get_note', note_id=note.id) }}">
+            Open note {{ note.id }} →
+          </a>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card api-card">
+      <h2>Legacy note API</h2>
+      <p class="muted">
+        The old portal still serves notes as JSON. If you are debugging an
+        integration, request <code>/api/notes/&lt;id&gt;</code> while signed in.
+      </p>
+    </section>
+  </main>
+  <footer class="footer">GDG Labs · fictional internal service · instance {{ instance_id }}</footer>
+</body>
+</html>

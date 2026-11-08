@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launch required · Chronos Engine</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="grid" aria-hidden="true"></div>
+  <main class="shell">
+    <section class="panel">
+      <p class="panel-label">AUTH / TEAM TOKEN REQUIRED</p>
+      <h1>No timeline is assigned to this browser.</h1>
+      <p class="lede">
+        Chronos derives a unique signing key for each team. Open this challenge
+        from your team dashboard so the engine can bind a timeline to you.
+      </p>
+      <p class="small">Organizer note: set <code>TEAM_TOKEN_SECRET</code> and launch through the platform.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Normalize text files in the repository; let Git handle the checkout style.
+* text=auto
+
+# Keep generated binaries out of diffs if they are ever added.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary

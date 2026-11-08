@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ event_name }} · Two challenges, one laptop{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">GDG CTF · LITE EDITION</p>
+    <h1>Two challenges.<br><span>One laptop.</span><br>Zero cloud bill.</h1>
+    <p class="lede">
+      A beginner IDOR and an experienced ECDSA nonce-reuse challenge, hosted
+      from the machine in front of you. Per-team flags are derived with HMAC,
+      so sharing a flag is detectable and sharing a Chronos signature does not
+      work on another team's instance.
+    </p>
+    <div class="hero-actions">
+      {% if current_team %}
+        <a class="button" href="{{ url_for('challenges') }}">Open the board</a>
+      {% else %}
+        <a class="button" href="{{ url_for('register') }}">Register a team</a>
+        <a class="button ghost" href="{{ url_for('login') }}">I have a team</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="hero-panel">
+    <p class="panel-label">EVENT STACK</p>
+    <ul class="stack-list">
+      <li><strong>Platform</strong><span>Flask + SQLite + Waitress</span></li>
+      <li><strong>Flags</strong><span>per-team HMAC, no stored answer key</span></li>
+      <li><strong>Hosting</strong><span>LAN or a free tunnel</span></li>
+      <li><strong>Cost</strong><span>open source, no VPS</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section-heading">
+  <div>
+    <p class="eyebrow">THE BOARD</p>
+    <h2>Two deliberate bugs, two very different levels.</h2>
+  </div>
+  <a class="text-link" href="{{ url_for('rules') }}">Read the rules →</a>
+</section>
+
+<div class="challenge-grid">
+  {% for challenge in challenges %}
+  <article class="challenge-card">
+    <div class="challenge-meta">
+      <span class="pill">{{ challenge.category }}</span>
+      <span class="pill difficulty {{ challenge.difficulty|lower }}">{{ challenge.difficulty }}</span>
+      <span class="points">{{ challenge.points }} pts</span>
+    </div>
+    <h3>{{ challenge.title }}</h3>
+    <p>{{ challenge.summary }}</p>
+    <div class="card-footer">
+      <span class="muted">3-step hint ladder</span>
+      {% if current_team %}
+        <a class="text-link" href="{{ url_for('challenge_detail', slug=challenge.slug) }}">View challenge →</a>
+      {% else %}
+        <a class="text-link" href="{{ url_for('register') }}">Register to play →</a>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<section class="how">
+  <div>
+    <p class="eyebrow">HOW IT WORKS</p>
+    <h2>No cloning. No building. No SSH keys.</h2>
+  </div>
+  <ol class="steps">
+    <li><span>01</span><div><strong>Register your team</strong><p>Open the platform on the event Wi-Fi. Pick a team name and password.</p></div></li>
+    <li><span>02</span><div><strong>Launch a challenge</strong><p>The platform signs a short-lived team token and opens the challenge service in a new tab.</p></div></li>
+    <li><span>03</span><div><strong>Submit the flag</strong><p>Your flag is derived for your team. A flag copied from another team will not score — and is logged.</p></div></li>
+  </ol>
+</section>
+
+<section class="fair-play">
+  <div>
+    <p class="eyebrow">FAIR PLAY</p>
+    <h2>Unique flags, without containers.</h2>
+  </div>
+  <p>
+    The platform does not store a canonical answer key. It recomputes <code>GDG{prefix_&lt;team-hmac&gt;}</code>
+    on demand. Chronos also derives a different ECDSA key for each team, so a
+    forged signature is tied to the team that forged it. The scoreboard records
+    every submission and flags cross-team flag attempts for organizer review.
+  </p>
+</section>
+{% endblock %}

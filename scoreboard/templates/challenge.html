@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ challenge.title }} · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head challenge-head">
+  <div>
+    <p class="eyebrow">{{ challenge.category }} · {{ challenge.difficulty }}</p>
+    <h1>{{ challenge.title }}</h1>
+    <p class="lede">{{ challenge.description }}</p>
+    <div class="challenge-meta">
+      <span class="pill">{{ challenge.points }} base points</span>
+      {% if solved %}<span class="solved-badge">Solved</span>{% endif %}
+      <span class="muted">Your score: {{ score }}</span>
+    </div>
+  </div>
+</section>
+
+{% if solved %}
+<section class="success-panel">
+  <p class="eyebrow">ARCHIVE OPEN</p>
+  <h2>Your team's flag</h2>
+  <p class="flag-display">{{ own_flag }}</p>
+  <p class="small">This flag is bound to your team. Do not share it.</p>
+</section>
+{% endif %}
+
+<section class="split">
+  <div class="card">
+    <div class="card-heading">
+      <h2>Launch the challenge</h2>
+      <span class="pill">{{ challenge.category }}</span>
+    </div>
+    <p class="muted">
+      The launch link signs a short-lived token for your team. It opens the
+      challenge service in a new tab. Keep this tab open for submissions.
+    </p>
+    <a class="button" href="{{ launch }}" target="_blank" rel="noopener noreferrer">
+      Launch {{ challenge.title }} ↗
+    </a>
+    {% if challenge.slug == "chronos-engine" %}
+    <p class="small">Optional helper: <a href="{{ url_for('static', filename='files/chronos_client.py') }}">chronos_client.py</a> — a small API wrapper, no solution inside.</p>
+    {% endif %}
+    <hr>
+    <form method="post" action="{{ url_for('submit_flag', slug=challenge.slug) }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <label for="flag">Submit a flag</label>
+      <div class="input-row">
+        <input id="flag" name="flag" type="text" required autocomplete="off"
+               spellcheck="false" placeholder="GDG{...}">
+        <button class="button" type="submit">Check</button>
+      </div>
+      <p class="small">Flags are case-sensitive. Rate limit: 12 attempts per minute.</p>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-heading">
+      <h2>Hint ladder</h2>
+      <span class="muted">Costs come off your total</span>
+    </div>
+    <div class="hint-stack">
+      {% for hint in challenge.hints %}
+        {% if hint.level in unlocked %}
+        <details class="hint unlocked" open>
+          <summary>Hint {{ hint.level }} · unlocked <span>{{ hint.cost }} pts</span></summary>
+          <p>{{ hint.text }}</p>
+        </details>
+        {% elif hint.level == unlocked|length + 1 %}
+        <form class="hint locked" method="post" action="{{ url_for('unlock_hint', slug=challenge.slug) }}">
+          <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+          <input type="hidden" name="level" value="{{ hint.level }}">
+          <div>
+            <strong>Hint {{ hint.level }}</strong>
+            <small>Unlock for {{ hint.cost }} points</small>
+          </div>
+          <button class="button small" type="submit">Unlock</button>
+        </form>
+        {% else %}
+        <div class="hint locked disabled">
+          <div><strong>Hint {{ hint.level }}</strong><small>Unlock hint {{ hint.level - 1 }} first</small></div>
+          <span class="lock">🔒</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <p class="small">Hints are sequential. There are exactly three per challenge.</p>
+  </div>
+</section>
+
+<div class="notice">
+  <strong>No guesswork.</strong> Both challenges have a deterministic intended path.
+  If you are stuck, the hint ladder is cheaper than a random flag attempt.
+</div>
+{% endblock %}

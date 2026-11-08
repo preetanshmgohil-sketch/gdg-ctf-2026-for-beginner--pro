@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Team dashboard · {{ event_name }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">TEAM DASHBOARD</p>
+    <h1>{{ team.name }}</h1>
+    <p class="lede">Your launch links are signed for this team. Open them from this browser.</p>
+  </div>
+  <a class="button" href="{{ url_for('challenges') }}">Open challenge board</a>
+</section>
+
+<div class="stat-grid">
+  <div class="stat"><span>Score</span><strong>{{ score }}</strong><small>after hint costs</small></div>
+  <div class="stat"><span>Solved</span><strong>{{ solved|length }} / {{ challenges|length }}</strong><small>challenges</small></div>
+  <div class="stat"><span>Hints</span><strong>{{ hints|length }}</strong><small>unlocked</small></div>
+  <div class="stat"><span>Status</span><strong class="status-good">Live</strong><small>team token active</small></div>
+</div>
+
+<section class="split">
+  <div class="card">
+    <div class="card-heading">
+      <h2>Challenge progress</h2>
+      <a class="text-link" href="{{ url_for('challenges') }}">All challenges →</a>
+    </div>
+    <div class="progress-list">
+      {% for challenge in challenges %}
+      <a class="progress-row" href="{{ url_for('challenge_detail', slug=challenge.slug) }}">
+        <span class="progress-icon {{ 'done' if challenge.slug in solved else '' }}">
+          {{ '✓' if challenge.slug in solved else '·' }}
+        </span>
+        <span class="grow">
+          <strong>{{ challenge.title }}</strong>
+          <small>{{ challenge.category }} · {{ challenge.points }} pts</small>
+        </span>
+        <span class="pill">{{ 'Solved' if challenge.slug in solved else 'Open' }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-heading"><h2>Recent submissions</h2></div>
+    {% if submissions %}
+    <table class="mini-table">
+      <thead><tr><th>Challenge</th><th>Result</th><th>When</th></tr></thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td>{{ challenge_by_slug[sub.challenge_id].title if sub.challenge_id in challenge_by_slug else sub.challenge_id }}</td>
+          <td><span class="result {{ 'ok' if sub.correct else 'bad' }}">{{ 'Correct' if sub.correct else 'Wrong' }}</span></td>
+          <td class="muted">{{ sub.created_at[11:19] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="muted">No submissions yet. Pick a challenge and launch it.</p>
+    {% endif %}
+  </div>
+</section>
+
+<div class="notice">
+  <strong>Flag hygiene.</strong>
+  Never paste another team's flag or share your launch URL. The platform derives a
+  different flag for every team; a copied flag is recorded as a cross-team attempt
+  and reviewed by the organizer.
+</div>
+{% endblock %}

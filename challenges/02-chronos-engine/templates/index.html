@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="instance-id" content="{{ instance_id }}">
+  <title>Chronos Engine · Temporal Attestation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="grid" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="hero">
+      <div class="brandline">
+        <span class="mark" aria-hidden="true"></span>
+        <span>CHRONOS ENGINE</span>
+        <span class="tag">AUDIT BUILD</span>
+      </div>
+      <p class="kicker">Temporal attestation service · node {{ instance_id }}</p>
+      {% if team %}<p class="team-badge">Team: {{ team.name }}</p>{% endif %}
+      <h1>The vault only opens for<br><span>the right signature.</span></h1>
+      <p class="lede">
+        Chronos timestamps and signs public timeline snapshots. Its audit mode is
+        deterministic by design: every signature in the same {{ epoch_seconds }}-second
+        epoch is reproducible. The archive vault accepts one attestation:
+        <code>vault:admin</code>.
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="/api/meta">Read the public metadata</a>
+        <span class="status"><span class="dot"></span> engine online</span>
+      </div>
+    </header>
+
+    <section class="columns">
+      <article class="panel">
+        <p class="panel-label">01 / SIGNING ORACLE</p>
+        <h2>Public timeline signatures</h2>
+        <p>
+          POST a JSON message that begins with <code>timeline:</code>. The engine
+          returns <code>r</code>, <code>s</code>, the message digest <code>z</code>,
+          and the epoch that produced the nonce.
+        </p>
+        <pre><code>POST /api/sign
+{"message":"timeline:snapshot-42"}</code></pre>
+        <p class="small">The oracle deliberately refuses to sign <code>vault:admin</code>.</p>
+      </article>
+
+      <article class="panel">
+        <p class="panel-label">02 / VAULT DOOR</p>
+        <h2>Open the archive</h2>
+        <p>
+          The vault verifies a secp256k1 / SHA-256 signature over the exact string
+          <code>vault:admin</code>. Present the signature as hex integers.
+        </p>
+        <pre><code>POST /api/vault/open
+{"message":"vault:admin","r":"0x...","s":"0x..."}</code></pre>
+        <p class="small">A valid attestation returns the archive flag.</p>
+      </article>
+    </section>
+
+    <section class="panel key-panel">
+      <div>
+        <p class="panel-label">PUBLIC KEY</p>
+        <h2>Engine identity</h2>
+        <p class="small">Curve: secp256k1 · Hash: SHA-256 · Epoch: {{ epoch_seconds }}s</p>
+      </div>
+      <dl class="keygrid">
+        <div><dt>x</dt><dd><code>{{ pubkey.x }}</code></dd></div>
+        <div><dt>y</dt><dd><code>{{ pubkey.y }}</code></dd></div>
+        <div><dt>uncompressed</dt><dd><code>{{ pubkey.uncompressed }}</code></dd></div>
+      </dl>
+    </section>
+
+    <section class="panel notes">
+      <p class="panel-label">OPERATOR NOTES</p>
+      <h2>Why is audit mode deterministic?</h2>
+      <p>
+        Replaying an audit trail should produce byte-identical signatures. To make
+        that possible, the signing nonce is derived from the engine's private nonce
+        seed and the current epoch, rather than a fresh random value per request.
+      </p>
+      <p class="small">
+        This is a fictional training service. Do not use this design in production.
+      </p>
+    </section>
+  </main>
+  <footer class="footer">
+    Chronos Engine · fictional infrastructure · instance {{ instance_id }} · <a href="/healthz">health</a>
+  </footer>
+</body>
+</html>
