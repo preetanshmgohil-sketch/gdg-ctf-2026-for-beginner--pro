@@ -296,7 +296,18 @@ The repository intentionally contains challenge spoilers. Keep it **private
 while the event is live**, then make it public afterward if you want to share
 the organizer material.
 
-### First push
+### Push this prepared repository
+
+This folder is already a Git repository with an initial commit on `main`.
+Create an **empty** repository on GitHub (no README, no `.gitignore`), then:
+
+```bash
+git remote add origin https://github.com/<your-user>/<your-repo>.git
+git push -u origin main
+```
+
+If you copied the files without the `.git` directory, initialize and commit
+first:
 
 ```bash
 git init -b main
