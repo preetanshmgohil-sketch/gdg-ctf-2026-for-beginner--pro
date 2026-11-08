@@ -129,7 +129,9 @@ Never send or publish these during an event:
 | `instance/ctf.db` | live teams, submissions, and audit log |
 | `/admin` | organizer audit page |
 
-The public README, `docs/HOSTING.md`, and the scoreboard pages are fine to share.
+The scoreboard pages and `docs/HOSTING.md` are safe to share. Avoid sharing this
+README during the event: it names both bugs and lists the standalone fallback
+flags.
 
 ### If someone asks for the challenge files
 
