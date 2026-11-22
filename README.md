@@ -22,7 +22,24 @@ the challenges are fictional.
 
 Requirements: Python **3.10+**, pip, and a laptop on the same Wi-Fi as the players.
 
-### Windows (PowerShell)
+### Windows (one-click launcher, recommended)
+
+Double-click **`START_GDG_CTF.bat`**.
+
+On first run it checks for Python 3.10+, creates `.venv`, installs Flask and
+Waitress, and starts all three services. Later runs start immediately. The
+first run needs internet; the event itself does not.
+
+To reset a test event, open Command Prompt in this folder and run:
+
+```bat
+START_GDG_CTF.bat reset
+```
+
+That clears the test database but keeps `instance/secrets.json`, so the
+organizer password and flag secrets do not change.
+
+### Windows (manual PowerShell)
 
 ```powershell
 cd "C:\path\to\gdg ctf"
@@ -239,6 +256,7 @@ response playbook.
 ## Project layout
 
 ```
+START_GDG_CTF.bat              Windows one-click organizer launcher
 run_all.py                     starts all three services, creates secrets
 requirements.txt               runtime dependencies
 requirements-dev.txt           pytest + requests for tests

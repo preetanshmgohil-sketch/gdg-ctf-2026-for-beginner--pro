@@ -1,6 +1,10 @@
 # Normalize text files in the repository; let Git handle the checkout style.
 * text=auto
 
+# Windows launchers must keep CRLF line endings.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
 # Keep generated binaries out of diffs if they are ever added.
 *.png binary
 *.jpg binary

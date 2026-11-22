@@ -38,9 +38,23 @@ python3 --version
 
 ## 2. First run
 
-From the project directory:
+### Windows (one-click launcher)
 
-### Windows
+Double-click **`START_GDG_CTF.bat`**.
+
+It checks for Python 3.10+, creates `.venv` if needed, installs Flask and
+Waitress, and starts all three services. The first run needs internet; later
+runs start immediately. Keep the window open while the event is live.
+
+To reset a test event without changing the organizer password or flag secrets:
+
+```bat
+START_GDG_CTF.bat reset
+```
+
+### Windows (manual PowerShell)
+
+From the project directory:
 
 ```powershell
 py -m venv .venv
