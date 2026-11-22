@@ -272,6 +272,132 @@ The solver retries across an epoch boundary automatically. If it takes longer
 than about 60 seconds, stop it and explain the math instead. Do not let it
 consume the interview.
 
+### Chronos in 60 seconds
+
+If they ask "what is the second challenge?", say:
+
+> Chronos is a fictional audit signer. It signs public `timeline:*` messages with
+> ECDSA, but it derives the nonce from a 60-second epoch. Two different messages
+> signed in the same epoch reuse the same nonce. That leaks the private key.
+> Once I have the key, I can sign the privileged `vault:admin` message that the
+> public oracle refuses to sign, and the vault returns the flag.
+
+Then show `/api/meta`:
+
+- curve: secp256k1
+- hash: SHA-256
+- nonce scheme: deterministic, epoch-derived
+- required attestation: `vault:admin`
+- vault endpoint: `/api/vault/open`
+
+### The math, in the simplest form
+
+ECDSA signing:
+
+```text
+s = k^-1 (z + r d) mod n
+```
+
+Two messages, same nonce `k`:
+
+```text
+s1 = k^-1 (z1 + r d)
+s2 = k^-1 (z2 + r d)
+```
+
+Subtract:
+
+```text
+s1 - s2 = k^-1 (z1 - z2)
+k       = (z1 - z2) / (s1 - s2) mod n
+```
+
+Substitute back:
+
+```text
+d = (s1 k - z1) / r mod n
+```
+
+`n` is the secp256k1 group order. `r` is the x-coordinate of `kG` modulo `n`.
+Same `k` means the same `r`, which is why two signatures with the same `r` are
+the giveaway.
+
+### Where it lives in the code
+
+- `challenges/02-chronos-engine/app.py` → `_nonce_for_epoch()`:
+  `SHA256(nonce_seed + ":" + epoch)`, then reduce into the scalar range.
+- `app.py` → `/api/sign`: rejects anything that does not start with `timeline:`,
+  then signs with the epoch nonce.
+- `app.py` → `/api/vault/open`: accepts only `vault:admin`, parses hex `r`/`s`,
+  and verifies with the team's public key.
+- `challenges/02-chronos-engine/solve.py` → `recover_private_key()`: the two
+  formulas above, followed by a public-key sanity check.
+
+If they ask to see code, show `_nonce_for_epoch()` and `recover_private_key()`.
+Do not open the whole curve implementation unless they specifically ask.
+
+### Chronos-specific questions
+
+**Why does reusing `k` leak the key?**
+Two linear equations share the unknown `k` and `d`. Subtract them and `d`
+cancels out, so `k` becomes solvable. Substitute `k` back and `d` falls out.
+
+**Why is `r` the same?**
+`r` is the x-coordinate of `kG`. Same nonce means the same point and the same
+`r`. A repeated `r` across different messages is a critical red flag.
+
+**Why did the developer use an epoch nonce?**
+The fictional story is "reproducible audit signatures." It is a plausible but
+fatal design choice. In real crypto, nonces must never be derived from public,
+predictable, or repeated input.
+
+**Why doesn't the `timeline:` restriction save the service?**
+The restriction only applies to the oracle. After recovering `d`, the attacker
+signs `vault:admin` locally. The key, not the endpoint, is the trust boundary.
+
+**How does the solver know it recovered the right key?**
+It derives the public key from the recovered `d` and compares it with
+`/api/meta`. If they differ, it aborts instead of submitting a bad forgery.
+
+**How do you get two signatures in the same epoch?**
+Request two different `timeline:*` messages back to back. If the `r` values
+differ, the calls crossed an epoch boundary; wait for the next epoch and retry.
+The solver does this automatically up to three times.
+
+**What is hashed for `vault:admin`?**
+The exact ASCII string `vault:admin`, with SHA-256, reduced modulo `n`. No JSON
+wrapper and no newline.
+
+**Why hex `r` and `s`?**
+The vault expects hexadecimal integers. The solver formats them with `0x` and
+zero-padding.
+
+**What if the signature is shared with another team?**
+Each team has a different private key and nonce seed derived from
+`FLAG_SECRET` and the team ID. A signature that opens team A's vault is invalid
+on team B's public key.
+
+**How would you fix it?**
+Use a CSPRNG nonce or RFC 6979 deterministic nonces, which bind the nonce to the
+message and private key rather than to a timestamp. Never derive a nonce from
+an epoch, counter, or other public value. Use a maintained constant-time crypto
+library. Do not expose a signing oracle for a key that protects a higher-value
+action, and monitor for repeated `r` values.
+
+**Is the custom curve code production-ready?**
+No. It is deliberately small and not constant-time, written only to model the
+flaw. Production code should use a maintained library.
+
+**What is the flag?**
+Platform mode: `GDG{chronos_<20 hex>}`, unique per team. Standalone mode:
+`GDG{n0nc3_r3us3_1s_f4t4l}`.
+
+**What if the live solver stalls?**
+Wait up to 60 seconds while explaining the math. If it still has not finished,
+stop it and say: "The solver is waiting for two signatures in the same epoch.
+The attack itself is two requests; the wait is just the epoch boundary." Then
+move on.
+
 ---
 
 ## Questions they may ask
