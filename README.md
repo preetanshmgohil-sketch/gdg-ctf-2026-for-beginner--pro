@@ -275,6 +275,7 @@ tests/test_challenges.py       unit tests for tokens, flags, and challenges
 tests/test_scoreboard.py       unit tests for scoring and flag-share audit
 tools/flag_lookup.py           organizer tool to recompute a team's flag
 docs/HOSTING.md                laptop/LAN runbook + optional free tunnels
+docs/LIVE_DEMO.md              15-minute organizer/interviewer demo runbook
 docs/ANTI_CHEAT.md             controls, limits, organizer playbook
 docs/FLAGS.md                  organizer spoiler sheet
 SECURITY.md                    deliberate-vulnerability and reporting policy
